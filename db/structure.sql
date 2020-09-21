@@ -842,7 +842,7 @@ CREATE TABLE ctgov.categories (
     last_modified timestamp without time zone NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    "grouping" character varying NOT NULL
+    "grouping" character varying DEFAULT ''::character varying NOT NULL
 );
 
 

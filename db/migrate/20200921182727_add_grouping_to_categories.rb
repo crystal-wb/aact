@@ -1,7 +1,7 @@
 class AddGroupingToCategories < ActiveRecord::Migration
   def up
     remove_index :categories, name: "index_categories_on_nct_id_and_name"
-    add_column :categories, :grouping, :string, null: false
+    add_column :categories, :grouping, :string, default: '', null: false
     add_index :categories, [:nct_id, :name, :grouping], unique: true
   end
 
