@@ -21,11 +21,12 @@ class Category < ActiveRecord::Base
       begin
         category = Category.find_by(nct_id: collected_nct_id, name: [@condition, @condition.underscore], grouping: [grouping, ''])
         category.update(grouping: @condition.underscore) if category && category.grouping.empty?
+        category.update(last_modified: Time.zone.now) if category
         category ||= Category.create(
                                       nct_id: collected_nct_id,
                                       name: @condition,
-                                      grouping: grouping)
-        category.update(last_modified: Time.zone.now)
+                                      grouping: grouping,
+                                      last_modified: Time.zone.now)
       rescue Exception => e
         puts "Failed: #{covid_nct_id}"
         puts "Error: #{e}"
