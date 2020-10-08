@@ -24,13 +24,6 @@ CREATE SCHEMA ctgov;
 
 
 --
--- Name: ctgov_beta; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA ctgov_beta;
-
-
---
 -- Name: support; Type: SCHEMA; Schema: -; Owner: -
 --
 
@@ -2301,41 +2294,6 @@ ALTER SEQUENCE ctgov.sponsors_id_seq OWNED BY ctgov.sponsors.id;
 
 
 --
--- Name: study_json_records; Type: TABLE; Schema: ctgov; Owner: -
---
-
-CREATE TABLE ctgov.study_json_records (
-    id integer NOT NULL,
-    nct_id character varying NOT NULL,
-    content jsonb NOT NULL,
-    saved_study_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    download_date character varying
-);
-
-
---
--- Name: study_json_records_id_seq; Type: SEQUENCE; Schema: ctgov; Owner: -
---
-
-CREATE SEQUENCE ctgov.study_json_records_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: study_json_records_id_seq; Type: SEQUENCE OWNED BY; Schema: ctgov; Owner: -
---
-
-ALTER SEQUENCE ctgov.study_json_records_id_seq OWNED BY ctgov.study_json_records.id;
-
-
---
 -- Name: study_references; Type: TABLE; Schema: ctgov; Owner: -
 --
 
@@ -2444,6 +2402,41 @@ CREATE SEQUENCE support.sanity_checks_id_seq
 --
 
 ALTER SEQUENCE support.sanity_checks_id_seq OWNED BY support.sanity_checks.id;
+
+
+--
+-- Name: study_json_records; Type: TABLE; Schema: support; Owner: -
+--
+
+CREATE TABLE support.study_json_records (
+    id integer NOT NULL,
+    nct_id character varying NOT NULL,
+    content jsonb NOT NULL,
+    saved_study_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    download_date character varying
+);
+
+
+--
+-- Name: study_json_records_id_seq; Type: SEQUENCE; Schema: support; Owner: -
+--
+
+CREATE SEQUENCE support.study_json_records_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: study_json_records_id_seq; Type: SEQUENCE OWNED BY; Schema: support; Owner: -
+--
+
+ALTER SEQUENCE support.study_json_records_id_seq OWNED BY support.study_json_records.id;
 
 
 --
@@ -2810,13 +2803,6 @@ ALTER TABLE ONLY ctgov.sponsors ALTER COLUMN id SET DEFAULT nextval('ctgov.spons
 
 
 --
--- Name: study_json_records id; Type: DEFAULT; Schema: ctgov; Owner: -
---
-
-ALTER TABLE ONLY ctgov.study_json_records ALTER COLUMN id SET DEFAULT nextval('ctgov.study_json_records_id_seq'::regclass);
-
-
---
 -- Name: study_references id; Type: DEFAULT; Schema: ctgov; Owner: -
 --
 
@@ -2835,6 +2821,13 @@ ALTER TABLE ONLY support.load_events ALTER COLUMN id SET DEFAULT nextval('suppor
 --
 
 ALTER TABLE ONLY support.sanity_checks ALTER COLUMN id SET DEFAULT nextval('support.sanity_checks_id_seq'::regclass);
+
+
+--
+-- Name: study_json_records id; Type: DEFAULT; Schema: support; Owner: -
+--
+
+ALTER TABLE ONLY support.study_json_records ALTER COLUMN id SET DEFAULT nextval('support.study_json_records_id_seq'::regclass);
 
 
 --
@@ -3221,14 +3214,6 @@ ALTER TABLE ONLY ctgov.sponsors
 
 
 --
--- Name: study_json_records study_json_records_pkey; Type: CONSTRAINT; Schema: ctgov; Owner: -
---
-
-ALTER TABLE ONLY ctgov.study_json_records
-    ADD CONSTRAINT study_json_records_pkey PRIMARY KEY (id);
-
-
---
 -- Name: study_references study_references_pkey; Type: CONSTRAINT; Schema: ctgov; Owner: -
 --
 
@@ -3250,6 +3235,14 @@ ALTER TABLE ONLY support.load_events
 
 ALTER TABLE ONLY support.sanity_checks
     ADD CONSTRAINT sanity_checks_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: study_json_records study_json_records_pkey; Type: CONSTRAINT; Schema: support; Owner: -
+--
+
+ALTER TABLE ONLY support.study_json_records
+    ADD CONSTRAINT study_json_records_pkey PRIMARY KEY (id);
 
 
 --
@@ -3380,10 +3373,17 @@ CREATE INDEX index_calculated_values_on_number_of_facilities ON ctgov.calculated
 
 
 --
--- Name: index_categories_on_nct_id; Type: INDEX; Schema: ctgov; Owner: -
+-- Name: index_categories_on_nct_id_and_name; Type: INDEX; Schema: ctgov; Owner: -
 --
 
-CREATE INDEX index_categories_on_nct_id ON ctgov.categories USING btree (nct_id);
+CREATE UNIQUE INDEX index_categories_on_nct_id_and_name ON ctgov.categories USING btree (nct_id, name);
+
+
+--
+-- Name: index_categories_on_nct_id_and_name_and_grouping; Type: INDEX; Schema: ctgov; Owner: -
+--
+
+CREATE UNIQUE INDEX index_categories_on_nct_id_and_name_and_grouping ON ctgov.categories USING btree (nct_id, name, "grouping");
 
 
 --
@@ -3905,13 +3905,6 @@ CREATE INDEX index_provided_documents_on_nct_id ON ctgov.provided_documents USIN
 
 
 --
--- Name: index_reported_event_totals_on_nct_id; Type: INDEX; Schema: ctgov; Owner: -
---
-
-CREATE INDEX index_reported_event_totals_on_nct_id ON ctgov.reported_event_totals USING btree (nct_id);
-
-
---
 -- Name: index_reported_events_on_event_type; Type: INDEX; Schema: ctgov; Owner: -
 --
 
@@ -4270,14 +4263,6 @@ ALTER TABLE ONLY ctgov.calculated_values
 
 
 --
--- Name: categories categories_nct_id_fkey; Type: FK CONSTRAINT; Schema: ctgov; Owner: -
---
-
-ALTER TABLE ONLY ctgov.categories
-    ADD CONSTRAINT categories_nct_id_fkey FOREIGN KEY (nct_id) REFERENCES ctgov.studies(nct_id);
-
-
---
 -- Name: central_contacts central_contacts_nct_id_fkey; Type: FK CONSTRAINT; Schema: ctgov; Owner: -
 --
 
@@ -4630,14 +4615,6 @@ ALTER TABLE ONLY ctgov.provided_documents
 
 
 --
--- Name: reported_event_totals reported_event_totals_nct_id_fkey; Type: FK CONSTRAINT; Schema: ctgov; Owner: -
---
-
-ALTER TABLE ONLY ctgov.reported_event_totals
-    ADD CONSTRAINT reported_event_totals_nct_id_fkey FOREIGN KEY (nct_id) REFERENCES ctgov.studies(nct_id);
-
-
---
 -- Name: reported_events reported_events_nct_id_fkey; Type: FK CONSTRAINT; Schema: ctgov; Owner: -
 --
 
@@ -4705,7 +4682,7 @@ ALTER TABLE ONLY ctgov.study_references
 -- PostgreSQL database dump complete
 --
 
-SET search_path TO ctgov, support, public, ctgov_beta;
+SET search_path TO ctgov, support, public;
 
 INSERT INTO schema_migrations (version) VALUES ('20160630191037');
 
